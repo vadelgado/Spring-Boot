@@ -26,6 +26,27 @@ public class ControladorPermisoRoles {
     public List<PermisosRoles> index(){
         return this.miRepositorioPermisoRoles.findAll();
     }
+    //Implementación método de validación Permiso
+    @GetMapping("validar-permiso/rol/{id_rol}")
+    public PermisosRoles getPermiso(@PathVariable String id_rol,
+                                    @RequestBody Permiso infoPermiso)
+    {
+        Permiso elPermiso=this.miRepositorioPermiso
+                .getPermiso(infoPermiso.getUrl(),
+                       infoPermiso.getMetodo());
+        Rol elRol=this.miRepositorioRol
+                .findById(id_rol)
+                .orElse(null);
+        if (elPermiso!=null && elRol!=null)
+        {
+            return this.miRepositorioPermisoRoles.getPermisoRoles(elRol.get_id(),
+                    elPermiso.get_id());
+        }else{
+            return null;
+        }
+    }
+
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("rol/{id_rol}/permiso/{id_permiso}")
     public PermisosRoles create(@PathVariable String id_rol, @PathVariable String id_permiso)

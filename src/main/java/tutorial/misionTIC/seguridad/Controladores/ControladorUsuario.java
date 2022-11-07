@@ -6,6 +6,9 @@ import tutorial.misionTIC.seguridad.Repositorios.RepositorioRol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,6 +53,22 @@ public class ControladorUsuario {
         infoUsuario.setContrasena(convertirSHA256(infoUsuario.getContrasena()));
         return this.miRepositorioUsuario.save(infoUsuario);
     }
+    //Implementación método de validación usuarios
+    @PostMapping("/validate")
+    public Usuario validate (@RequestBody Usuario infoUsuario, final HttpServletResponse response) throws IOException //throws IOException: Listar los tipos (S)
+    {
+        Usuario usuarioActual= this.miRepositorioUsuario
+                .getUserByEmail(infoUsuario.getCorreo());
+        String contrasena = convertirSHA256(infoUsuario.getContrasena());
+        if (usuarioActual != null && usuarioActual.getContrasena().equals(contrasena)){
+            usuarioActual.setContrasena("");
+            return usuarioActual;
+        }else{
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
+        }
+    }
+
     @GetMapping("{id}")
     public Usuario show(@PathVariable String id)
     {
